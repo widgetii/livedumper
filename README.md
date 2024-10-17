@@ -16,3 +16,7 @@ python livedumper.py <m3u8_url> --interval <interval> --retries <retries> --wait
 ## Description
 
 The livedumper script accepts an m3u8 URL as a command-line parameter and downloads the HLS playlist at a configurable interval. Each playlist is stored on the filesystem using a Unix timestamp when the playlist was grabbed. The script also implements a retry mechanism to handle errors when downloading the playlist and logs errors to a file.
+
+## Asynchronous Implementation
+
+The livedumper script now uses `asyncio` for asynchronous programming. The `download_playlist` function is an asynchronous function using `aiohttp` for non-blocking HTTP requests. The `main` function is also an asynchronous function using `asyncio.sleep` for non-blocking sleep intervals. This allows the script to handle multiple tasks concurrently and improve performance.
