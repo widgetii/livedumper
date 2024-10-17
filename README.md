@@ -17,7 +17,7 @@ The script will create a separate directory named after the m3u8 filename (witho
 
 ## Description
 
-The livedumper script accepts an m3u8 URL as a command-line parameter and downloads the HLS playlist at a configurable interval. Each playlist is stored on the filesystem using a Unix timestamp when the playlist was grabbed. The script also implements a retry mechanism to handle errors when downloading the playlist and logs errors to a file.
+The livedumper script accepts an m3u8 URL as a command-line parameter and downloads the HLS playlist at a configurable interval. Each playlist is stored on the filesystem using a Unix timestamp when the playlist was grabbed. The script also implements a retry mechanism to handle errors when downloading the playlist and logs errors to stdout.
 
 The script creates a separate directory named after the m3u8 filename (without extension) and saves the downloaded playlists in that directory.
 

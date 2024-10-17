@@ -10,8 +10,10 @@ async def download_playlist(url, retries, wait):
     while attempt < retries:
         try:
             async with aiohttp.ClientSession() as session:
+                logging.info(f"Fetching URL: {url}, Attempt: {attempt + 1}")
                 async with session.get(url) as response:
                     response.raise_for_status()
+                    logging.info(f"Successfully fetched URL: {url}, Attempt: {attempt + 1}")
                     return await response.text()
         except aiohttp.ClientError as e:
             logging.error(f"{int(time.time())}, {str(e)}, {attempt + 1}")
@@ -38,12 +40,14 @@ async def main():
     parser.add_argument("--wait", type=int, default=1, help="The wait time (in seconds) between retry attempts. Default is 1 second.")
     args = parser.parse_args()
 
-    logging.basicConfig(filename='error.log', level=logging.ERROR, format='%(message)s')
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(message)s')
 
     while True:
+        logging.info(f"Starting download for URL: {args.url}")
         playlist_content = await download_playlist(args.url, args.retries, args.wait)
         if playlist_content:
             save_playlist(playlist_content, args.url)
+            logging.info(f"Playlist saved for URL: {args.url}")
         await asyncio.sleep(args.interval)
 
 if __name__ == "__main__":
