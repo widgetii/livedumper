@@ -19,10 +19,15 @@ async def download_playlist(url, retries, wait):
             await asyncio.sleep(wait)
     return None
 
-def save_playlist(content):
+def save_playlist(content, url):
     timestamp = int(time.time())
     filename = f"{timestamp}.m3u8"
-    with open(filename, 'w') as file:
+    directory_name = os.path.splitext(os.path.basename(url))[0]
+
+    if not os.path.exists(directory_name):
+        os.makedirs(directory_name)
+
+    with open(os.path.join(directory_name, filename), 'w') as file:
         file.write(content)
 
 async def main():
@@ -38,7 +43,7 @@ async def main():
     while True:
         playlist_content = await download_playlist(args.url, args.retries, args.wait)
         if playlist_content:
-            save_playlist(playlist_content)
+            save_playlist(playlist_content, args.url)
         await asyncio.sleep(args.interval)
 
 if __name__ == "__main__":

@@ -13,9 +13,13 @@ python livedumper.py <m3u8_url> --interval <interval> --retries <retries> --wait
 - `--retries`: The number of retry attempts in case of an error. Default is 3.
 - `--wait`: The wait time (in seconds) between retry attempts. Default is 1 second.
 
+The script will create a separate directory named after the m3u8 filename (without extension) and save the downloaded playlists in that directory.
+
 ## Description
 
 The livedumper script accepts an m3u8 URL as a command-line parameter and downloads the HLS playlist at a configurable interval. Each playlist is stored on the filesystem using a Unix timestamp when the playlist was grabbed. The script also implements a retry mechanism to handle errors when downloading the playlist and logs errors to a file.
+
+The script creates a separate directory named after the m3u8 filename (without extension) and saves the downloaded playlists in that directory.
 
 ## Asynchronous Implementation
 
