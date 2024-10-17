@@ -42,14 +42,15 @@ async def download_segment(url, directory_name):
             with open(segment_filename, 'wb') as segment_file:
                 segment_file.write(await response.read())
 
-async def check_and_download_segments(playlist_content, directory_name):
+async def check_and_download_segments(playlist_content, directory_name, base_url):
     playlist = m3u8.loads(playlist_content)
     tasks = []
     for segment in playlist.segments:
         segment_filename = os.path.join(directory_name, os.path.basename(segment.uri))
         if not os.path.exists(segment_filename):
             logging.info(f"Segment {segment.uri} is missing, scheduling download.")
-            tasks.append(download_segment(segment.uri, directory_name))
+            full_url = base_url + segment.uri
+            tasks.append(download_segment(full_url, directory_name))
     await asyncio.gather(*tasks)
 
 async def main():
@@ -62,6 +63,8 @@ async def main():
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(message)s')
 
+    base_url = os.path.dirname(args.url) + "/"
+
     while True:
         logging.info(f"Starting download for URL: {args.url}")
         playlist_content = await download_playlist(args.url, args.retries, args.wait)
@@ -69,7 +72,7 @@ async def main():
             save_playlist(playlist_content, args.url)
             logging.info(f"Playlist saved for URL: {args.url}")
             directory_name = os.path.splitext(os.path.basename(args.url))[0]
-            await check_and_download_segments(playlist_content, directory_name)
+            await check_and_download_segments(playlist_content, directory_name, base_url)
         await asyncio.sleep(args.interval)
 
 if __name__ == "__main__":
