@@ -5,6 +5,7 @@ import sys
 import logging
 import aiohttp
 import asyncio
+import m3u8
 
 async def download_playlist(url, retries, wait):
     attempt = 0
@@ -33,6 +34,24 @@ def save_playlist(content, url):
     with open(os.path.join(directory_name, filename), 'w') as file:
         file.write(content)
 
+async def download_segment(url, directory_name):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            response.raise_for_status()
+            segment_filename = os.path.join(directory_name, os.path.basename(url))
+            with open(segment_filename, 'wb') as segment_file:
+                segment_file.write(await response.read())
+
+async def check_and_download_segments(playlist_content, directory_name):
+    playlist = m3u8.loads(playlist_content)
+    tasks = []
+    for segment in playlist.segments:
+        segment_filename = os.path.join(directory_name, os.path.basename(segment.uri))
+        if not os.path.exists(segment_filename):
+            logging.info(f"Segment {segment.uri} is missing, scheduling download.")
+            tasks.append(download_segment(segment.uri, directory_name))
+    await asyncio.gather(*tasks)
+
 async def main():
     parser = argparse.ArgumentParser(description="Download HLS playlist at a configurable interval.")
     parser.add_argument("url", help="The URL of the m3u8 playlist to download.")
@@ -49,6 +68,8 @@ async def main():
         if playlist_content:
             save_playlist(playlist_content, args.url)
             logging.info(f"Playlist saved for URL: {args.url}")
+            directory_name = os.path.splitext(os.path.basename(args.url))[0]
+            await check_and_download_segments(playlist_content, directory_name)
         await asyncio.sleep(args.interval)
 
 if __name__ == "__main__":
