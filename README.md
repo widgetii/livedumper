@@ -26,3 +26,7 @@ The script creates a separate directory named after the m3u8 filename (without e
 The livedumper script now uses `asyncio` for asynchronous programming. The `download_playlist` function is an asynchronous function using `aiohttp` for non-blocking HTTP requests. The `main` function is also an asynchronous function using `asyncio.sleep` for non-blocking sleep intervals. This allows the script to handle multiple tasks concurrently and improve performance.
 
 The script also includes a function `check_and_download_segments` to parse the m3u8 playlist, check for missing media segment files, and schedule their download. This ensures that all media segment files are available in the same directory as the stored playlist file.
+
+## Handling Initialization Segment
+
+The livedumper script now handles the `#EXT-X-MAP:URI=` tag in the playlist. If the playlist contains an initialization segment specified by the `#EXT-X-MAP:URI=` tag, the script will check if the initialization segment file is missing and schedule its download if necessary. This ensures that the initialization segment is available along with the media segment files.

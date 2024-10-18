@@ -45,6 +45,15 @@ async def download_segment(url, directory_name):
 async def check_and_download_segments(playlist_content, directory_name, base_url):
     playlist = m3u8.loads(playlist_content)
     tasks = []
+
+    if playlist.keys and playlist.keys[0].uri:
+        init_segment_uri = playlist.keys[0].uri
+        init_segment_filename = os.path.join(directory_name, os.path.basename(init_segment_uri))
+        if not os.path.exists(init_segment_filename):
+            logging.info(f"Initialization segment {init_segment_uri} is missing, scheduling download.")
+            full_url = base_url + init_segment_uri
+            tasks.append(download_segment(full_url, directory_name))
+
     for segment in playlist.segments:
         segment_filename = os.path.join(directory_name, os.path.basename(segment.uri))
         if not os.path.exists(segment_filename):
